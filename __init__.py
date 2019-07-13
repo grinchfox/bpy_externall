@@ -20,7 +20,7 @@ bl_info = {
     "name": "Externall",
     "author": "Dealga McArdle, italic",
     "version": (0, 2),
-    "blender": (2, 7, 6),
+    "blender": (2, 80, 0),
     "location": "Blender Text Editor -> Tools, various text editors: Vim, Sublime, Atom",
     "description": "Connect with external text editors in a generic way",
     "wiki_url": "https://github.com/zeffii/bpy_externall",
@@ -107,14 +107,14 @@ def execute_file(fp):
         log.debug('Error on line {}'.format(sys.exc_info()[-1].tb_lineno))
 
 
-class BPYExternallClient(bpy.types.Operator, object):
+class BPY_EXTERNALL_OP_Client(bpy.types.Operator, object):
 
     bl_idname = "wm.bpy_externall_server"
     bl_label = "Start and stop Externall server"
 
     _timer = None
-    speed = FloatProperty()
-    mode = StringProperty()
+    speed: FloatProperty()
+    mode: StringProperty()
 
     def process(self):
         fp = filepath_read_handler()
@@ -140,7 +140,7 @@ class BPYExternallClient(bpy.types.Operator, object):
             log.info("Entering modal operator...")
             statemachine['status'] = RUNNING
             wm = context.window_manager
-            self._timer = wm.event_timer_add(self.speed, context.window)
+            self._timer = wm.event_timer_add(self.speed, window=context.window)
             wm.modal_handler_add(self)
 
         if type_op == 'end':
@@ -156,9 +156,9 @@ class BPYExternallClient(bpy.types.Operator, object):
         wm.event_timer_remove(self._timer)
 
 
-class BPYExternallPanel(bpy.types.Panel):
+class BPY_EXTERNAL_PT_Panel(bpy.types.Panel):
 
-    bl_idname = "BPYExternallPanel"
+    bl_idname = "BPY_EXTERNAL_PT_Panel"
     bl_label = "bpy externall panel"
     bl_space_type = 'TEXT_EDITOR'
     bl_region_type = 'UI'
@@ -167,6 +167,7 @@ class BPYExternallPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
+
         col = layout.column()
 
         state = statemachine['status']
@@ -174,10 +175,11 @@ class BPYExternallPanel(bpy.types.Panel):
         # promising! continue
         tstr = ''
         if state == STOPPED:
-            tstr = 'start'
+            col.label(text = "Server is not running")
+            tstr = 'Start'
         elif state == RUNNING:
-            col.label('listening on ' + statemachine['tempfile'])
-            tstr = 'end'
+            col.label(text = 'Listening on ' + statemachine['tempfile'])
+            tstr = 'Stop'
 
         if tstr:
             op = col.operator('wm.bpy_externall_server', text=tstr)
@@ -186,8 +188,8 @@ class BPYExternallPanel(bpy.types.Panel):
 
 
 def register():
-    bpy.utils.register_class(BPYExternallPanel)
-    bpy.utils.register_class(BPYExternallClient)
+    bpy.utils.register_class(BPY_EXTERNAL_PT_Panel)
+    bpy.utils.register_class(BPY_EXTERNALL_OP_Client)
 
 
 def unregister():
@@ -195,8 +197,8 @@ def unregister():
         bpy.ops.wm.bpy_externall_server(mode="end")
     except:
         pass
-    bpy.utils.unregister_class(BPYExternallPanel)
-    bpy.utils.unregister_class(BPYExternallClient)
+    bpy.utils.unregister_class(BPY_EXTERNAL_PT_Panel)
+    bpy.utils.unregister_class(BPY_EXTERNALL_OP_Client)
 
 
 if __name__ == '__main__':

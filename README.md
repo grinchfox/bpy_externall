@@ -1,9 +1,8 @@
 # bpy_externall
 execute scripts in a running Blender session from any decent text editor.
 
-```python
+* Blender version required: 2.80
 
-"""
 ## INSTALLATION 
 
   'bpy_externall' add-on:
@@ -30,10 +29,6 @@ The exact implementation will be up to the user. This
 repository will provide a small plugin for Sublime
 Text to demonstrate how you might send a filepath 
 to the temp file.
-
-"""
-
-```
 
 You can start the addon and end the addon via a script, or bpy REPL.
 
